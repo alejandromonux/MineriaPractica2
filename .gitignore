@@ -2,7 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+.idea\
 # C extensions
 *.so
 
@@ -123,3 +123,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+.idea/vcs.xml
+.idea/other.xml
+.idea/modules.xml
+.idea/misc.xml
+.idea/Mineria2.iml
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/workspace.xml
