@@ -82,12 +82,29 @@ def compute_test(x_test,    y_test,    classifyingFunction,   crossValScore):
     splitter = sklearn.model_selection.KFold(n_splits=10)
     indices = splitter.split(X, Y)  # Dentro de indices existirán diez grupos de dos arrays, uno de estos dos con índices de training (90%)y otro de test(10%) que se irán intercalando
 
+    #Tenemos que minimizar la classifying function??
 
-    scores=[]
+    scoreActual=0
+    bestDimensiones=0
+    bestVecinos=0
+    #for index_train, index_test in indices:
+    #    scores.append(0)
     for index_train, index_test in indices:
-        scores.append(0)
+        #Comprovaremos para todas las dimensionalidades
+        for dimensiones in range(1,64):
+            #Cambiamos la dimensionalidad
+            pass
+            # Miramos los vecinos, el rango es un numero arbitrario, de momento el número de ejemplos de train
+            for vecinos in range(0, 180):
+                ##Probar numero de vecinos con esta dimensionalidad
 
-    return scores
+                #ClassifyingFunction nos definirá la score???
+                #CV no sé aún cómo usarlo
+                #Después de hacer cosas, si estamos en una combinación con una score mejor que la anterior, cogeremos esta.
+                pass
+
+
+    return bestDimensiones, bestVecinos
 
 def generaKNN(numVeins, X, Y):
     veins= KNeighborsClassifier(n_neighbors = numVeins)
@@ -134,6 +151,6 @@ if __name__ == "__main__":
     displayScatterPlot(X_lda, Y, "LDA")
 
     # Parte 4
-    compute_test(X_test, Y_test)
-    generaKNN(3)
+    n_vecinos, n_dimensiones = compute_test(X_test, Y_test, 1, 1)
+    predictor = generaKNN(n_vecinos)
     #Començem a predir!
