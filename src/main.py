@@ -8,7 +8,8 @@ import sklearn.neighbors
 import sklearn.metrics
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier
-
+from sklearn.svm import SVC
+from sklearn.model_selection import cross_val_score
 
 def calculaEstadistiques(X, Y):
     # Busquem el nombre de elements de entrenament per classe
@@ -44,8 +45,8 @@ def normalitzaDades(X, mitjana):
 
     return (X_norm)
 
-def calculaPCA(X):
-    pca = sklearn.decomposition.PCA(n_components=2, copy=True, whiten=False,
+def calculaPCA(X, components):
+    pca = sklearn.decomposition.PCA(n_components=components, copy=True, whiten=False,
                                     svd_solver='auto', tol=0.0, iterated_power='auto', random_state=None)
 
     return pca.fit(X).transform(X)
@@ -76,10 +77,14 @@ def displayScatterPlot(X, Y, name):
     plt.colorbar()
     plt.show()
 
+def generaKNN(numVeins, X, Y):
+    veins= KNeighborsClassifier(n_neighbors = numVeins)
+    predictor = veins.fit(X, Y)
+    return predictor
 
-#                                      Creo que es esto?      Creo que es esto?
-def compute_test(x_test,    y_test,    classifyingFunction,   crossValScore):
-    splitter = sklearn.model_selection.KFold(n_splits=10)
+#                                                   Numero de folds
+def compute_test(X,    Y,    classifyingFunction,   cv):
+    splitter = sklearn.model_selection.KFold(n_splits=cv)
     indices = splitter.split(X, Y)  # Dentro de indices existirán diez grupos de dos arrays, uno de estos dos con índices de training (90%)y otro de test(10%) que se irán intercalando
 
     #Tenemos que minimizar la classifying function??
@@ -87,29 +92,47 @@ def compute_test(x_test,    y_test,    classifyingFunction,   crossValScore):
     scoreActual=0
     bestDimensiones=0
     bestVecinos=0
+    train_test = []
     #for index_train, index_test in indices:
     #    scores.append(0)
     for index_train, index_test in indices:
         #Comprovaremos para todas las dimensionalidades
         for dimensiones in range(1,64):
             #Cambiamos la dimensionalidad
-            pass
+            new_X = calculaPCA(X, dimensiones)
+            #Cambiar new_X para que sea sólo los índices de train. Y otra para los de test. Hacer el cross_val_score con test.
+            #TODO: Que esta dimensión coincida con los índices
+            #X_train, X_test, Y_train, Y_test = ns.train_test_split(new_X, Y, test_size=(1/cv))
+            X_train = new_X[index_train];
+            #X_test = new_X[index_test];
+            Y_train = Y[index_train];
+            #Y_test = Y[index_test];
+
             # Miramos los vecinos, el rango es un numero arbitrario, de momento el número de ejemplos de train
-            for vecinos in range(0, 180):
+            #classifyingFunction.fit(X_train, Y)
+            for veins in range(1, 180):
                 ##Probar numero de vecinos con esta dimensionalidad
-
-                #ClassifyingFunction nos definirá la score???
-                #CV no sé aún cómo usarlo
+                #Opción 1: Con SVC: cross_val_score(estimator=classifyingFunction, X=X_test, y=Y, cv=cv)
+                #Opción 2: Con Kneighbour s
+                predictor = KNeighborsClassifier(n_neighbors = veins)
+                scores = cross_val_score(estimator=predictor, X=X_train, y=Y_train, cv=cv)
+                #Calcul de la mitjana de scores
+                score = sum(scores)/len(scores)
                 #Después de hacer cosas, si estamos en una combinación con una score mejor que la anterior, cogeremos esta.
-                pass
+                if  score > scoreActual:
+                    bestDimensiones = dimensiones
+                    bestVecinos = veins
+                    if len(train_test) == 2:
+                        train_test[0] = index_train
+                        train_test[1] = index_test
+                    else:
+                        train_test.append(index_train)
+                        train_test.append(index_test)
 
 
-    return bestDimensiones, bestVecinos
 
-def generaKNN(numVeins, X, Y):
-    veins= KNeighborsClassifier(n_neighbors = numVeins)
-    predictor = veins.fit(X, Y)
-    return predictor
+    return bestDimensiones, bestVecinos, train_test
+
 
 if __name__ == "__main__":
     digits = sklearn.datasets.load_digits()
@@ -137,7 +160,7 @@ if __name__ == "__main__":
 
     # Parte 3
     # PCA
-    X_pca = calculaPCA(X)
+    X_pca = calculaPCA(X,2)
     # SVD
     #X_norm = normalitzaDades(X, mitjana)
     X_svd = calculaSVD(X) #Si pasamos la X normlaizada, nos saldrá igual que en PCA
@@ -151,6 +174,7 @@ if __name__ == "__main__":
     displayScatterPlot(X_lda, Y, "LDA")
 
     # Parte 4
-    n_vecinos, n_dimensiones = compute_test(X_test, Y_test, 1, 1)
-    predictor = generaKNN(n_vecinos)
+    n_vecinos, n_dimensiones = compute_test(X, Y, SVC(gamma='auto', decision_function_shape='ovo'), 10)
+    print("VECINOS: " + n_vecinos + " DIMENSIONES: " + n_dimensiones)
+    #predictor = generaKNN(n_vecinos)
     #Començem a predir!
