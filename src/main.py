@@ -7,6 +7,7 @@ import sklearn.decomposition
 import sklearn.neighbors
 import sklearn.metrics
 import matplotlib.pyplot as plt
+from sklearn.metrics import accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score
@@ -62,14 +63,6 @@ def calculaLDA(X, Y):
     return lda.fit(X, Y).transform(X)
 
 def displayScatterPlot(X, Y, name):
-    #figure = plt.figure()
-    #axis = figure.add_subplot(1, 1, 1)
-    #colors = ("red","green","yellow","black","pink","purple","orange", "brown", "coral", "lime")
-
-    #i=0
-    #for x in X:
-    #    axis.scatter(x[0], x[1], alpha=0.8, c=colors[Y[i]],edgecolors='none', s=30, label=Y[i])
-    #    i+=1
     plt.scatter(X[:, 0], X[:, 1], c=Y)
     plt.title('Scatter plot '+name)
     plt.xlabel('PC1')
@@ -82,56 +75,36 @@ def generaKNN(numVeins, X, Y):
     predictor = veins.fit(X, Y)
     return predictor
 
-#                                                   Numero de folds
-def compute_test(X,    Y,    classifyingFunction,   cv):
+
+def compute_test(X, Y, classifyingFunction, cv):
     splitter = sklearn.model_selection.KFold(n_splits=cv)
-    indices = splitter.split(X, Y)  # Dentro de indices existirán diez grupos de dos arrays, uno de estos dos con índices de training (90%)y otro de test(10%) que se irán intercalando
+    indices = splitter.split(X, Y)
 
-    #Tenemos que minimizar la classifying function??
+    #TODO: Buscar también mejor dimensionalidad
+    scoreActual = 0
+    bestDimensiones = 0
+    bestVecinos = 0
+    for veins in range(1, 30):
+        predictor = KNeighborsClassifier(n_neighbors=veins)
+        for index_train, index_test in indices:
+            X_train = X[index_train]
+            X_test = X[index_test]
+            Y_train = Y[index_train]
+            Y_test = Y[index_test]
+            Y_aux = [len(Y_test)]
 
-    scoreActual=0
-    bestDimensiones=0
-    bestVecinos=0
-    train_test = []
-    #for index_train, index_test in indices:
-    #    scores.append(0)
-    for index_train, index_test in indices:
-        #Comprovaremos para todas las dimensionalidades
-        for dimensiones in range(1,64):
-            #Cambiamos la dimensionalidad
-            new_X = calculaPCA(X, dimensiones)
-            #Cambiar new_X para que sea sólo los índices de train. Y otra para los de test. Hacer el cross_val_score con test.
-            #TODO: Que esta dimensión coincida con los índices
-            #X_train, X_test, Y_train, Y_test = ns.train_test_split(new_X, Y, test_size=(1/cv))
-            X_train = new_X[index_train];
-            #X_test = new_X[index_test];
-            Y_train = Y[index_train];
-            #Y_test = Y[index_test];
+            predictor.fit(X_train, Y_train)
+            Y_aux = predictor.predict(X_test)
 
-            # Miramos los vecinos, el rango es un numero arbitrario, de momento el número de ejemplos de train
-            #classifyingFunction.fit(X_train, Y)
-            for veins in range(1, 180):
-                ##Probar numero de vecinos con esta dimensionalidad
-                #Opción 1: Con SVC: cross_val_score(estimator=classifyingFunction, X=X_test, y=Y, cv=cv)
-                #Opción 2: Con Kneighbour s
-                predictor = KNeighborsClassifier(n_neighbors = veins)
-                scores = cross_val_score(estimator=predictor, X=X_train, y=Y_train, cv=cv)
-                #Calcul de la mitjana de scores
-                score = sum(scores)/len(scores)
-                #Después de hacer cosas, si estamos en una combinación con una score mejor que la anterior, cogeremos esta.
-                if  score > scoreActual:
-                    bestDimensiones = dimensiones
-                    bestVecinos = veins
-                    if len(train_test) == 2:
-                        train_test[0] = index_train
-                        train_test[1] = index_test
-                    else:
-                        train_test.append(index_train)
-                        train_test.append(index_test)
+            score = accuracy_score(y_true=Y_test, y_pred=Y_aux, normalize=False)
 
+            if score > scoreActual:
+                print(str(veins) + " donen: " + str(score))
+                scoreActual = score
+                bestVecinos = veins
 
+    return bestDimensiones, bestVecinos
 
-    return bestDimensiones, bestVecinos, train_test
 
 
 if __name__ == "__main__":
@@ -174,7 +147,7 @@ if __name__ == "__main__":
     displayScatterPlot(X_lda, Y, "LDA")
 
     # Parte 4
-    n_vecinos, n_dimensiones = compute_test(X, Y, SVC(gamma='auto', decision_function_shape='ovo'), 10)
-    print("VECINOS: " + n_vecinos + " DIMENSIONES: " + n_dimensiones)
+    n_dimensiones, n_vecinos = compute_test(X, Y, KNeighborsClassifier(n_neighbors = 1), 10)
+    print("VECINOS: " + str(n_vecinos) + " DIMENSIONES: " + str(n_dimensiones))
     #predictor = generaKNN(n_vecinos)
     #Començem a predir!
