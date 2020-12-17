@@ -86,9 +86,7 @@ def compute_test(X, Y, classifyingFunction, cv):
     for index_train, index_test in indices:
         for veins in range(1, 60):
             predictor = KNeighborsClassifier(n_neighbors=veins)
-            print("Veins For 2:" + str(veins))
             for dimensio in range(1, 64):
-                print("Veins For 3:" + str(veins))
                 X_new = calculaPCA(X, dimensio)
 
                 X_train = X_new[index_train]
@@ -103,7 +101,6 @@ def compute_test(X, Y, classifyingFunction, cv):
                 score = accuracy_score(y_true=Y_test, y_pred=Y_aux, normalize=False)
 
                 if score > scoreActual:
-                    #print(str(veins) + " donen: " + str(score))
                     scoreActual = score
                     bestVecinos = veins
                     bestDimensiones = dimensio
@@ -112,12 +109,25 @@ def compute_test(X, Y, classifyingFunction, cv):
 
     return bestDimensiones, bestVecinos
 
-def cercaDeParametres(cv):
-    GridSearchCV(estimator=KNeighborsClassifier(),
-                 param_grid={'algorithm':'auto', 'n_neighbors':[1, 30]}
+def cercaDeParametres(cv, X, Y):
+    n_neighbours = range(1,10)
+    clf = GridSearchCV(estimator=KNeighborsClassifier(),
+                 param_grid={'n_neighbors':n_neighbours}
                  ,cv=cv)
-    pass
 
+    #TODO: Algo que se puede hacer es un bucle que vaya probando las dimensiones y vamos poniéndolas en la gráfica
+    # Una línea por dimensión
+    # Para metodo de transformación grafica con PCA y con SVD
+    # Esquema de ponderació yo qué sé julio
+    clf.fit(X, Y)
+
+    score = clf.cv_results_['mean_test_score']
+    plt.plot(n_neighbours, score, label='Veins')
+    plt.legend()
+    plt.xlabel('neighbours')
+    plt.ylabel('Mean score')
+    plt.show()
+    print(clf.cv_results_)
 
 if __name__ == "__main__":
     digits = sklearn.datasets.load_digits()
@@ -159,12 +169,11 @@ if __name__ == "__main__":
     displayScatterPlot(X_lda, Y, "LDA")
 
     # Parte 4
-    n_dimensiones, n_vecinos = compute_test(X, Y, KNeighborsClassifier(n_neighbors = 1), 10)
-    print("VECINOS: " + str(n_vecinos) + " DIMENSIONES: " + str(n_dimensiones))
+    #n_dimensiones, n_vecinos = compute_test(X, Y, KNeighborsClassifier(n_neighbors = 1), 10)
+    #print("VECINOS: " + str(n_vecinos) + " DIMENSIONES: " + str(n_dimensiones))
 
 
-    X_new = calculaPCA(X, n_dimensiones)
-    predictor = generaKNN(n_vecinos, X_new, Y)
+    X_new = calculaPCA(X, 27)
+    predictor = generaKNN(3, X_new, Y)
     #Començem a predir!
-    print(predictor.get_params())
-    cercaDeParametres(10)
+    cercaDeParametres(10, X_new, Y)
