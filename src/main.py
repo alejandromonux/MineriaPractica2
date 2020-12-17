@@ -8,9 +8,9 @@ import sklearn.neighbors
 import sklearn.metrics
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-from sklearn.model_selection import cross_val_score
+
 
 def calculaEstadistiques(X, Y):
     # Busquem el nombre de elements de entrenament per classe
@@ -84,27 +84,34 @@ def compute_test(X, Y, classifyingFunction, cv):
     scoreActual = 0
     bestDimensiones = 0
     bestVecinos = 0
-    for veins in range(1, 30):
+    for veins in range(1, 60):
         predictor = KNeighborsClassifier(n_neighbors=veins)
         for index_train, index_test in indices:
-            X_train = X[index_train]
-            X_test = X[index_test]
-            Y_train = Y[index_train]
-            Y_test = Y[index_test]
-            Y_aux = [len(Y_test)]
+            for dimensio in range(1, 60):
+                X_new = calculaPCA(X, dimensio)
 
-            predictor.fit(X_train, Y_train)
-            Y_aux = predictor.predict(X_test)
+                X_train = X_new[index_train]
+                X_test = X_new[index_test]
+                Y_train = Y[index_train]
+                Y_test = Y[index_test]
+                Y_aux = [len(Y_test)]
 
-            score = accuracy_score(y_true=Y_test, y_pred=Y_aux, normalize=False)
+                predictor.fit(X_train, Y_train)
+                Y_aux = predictor.predict(X_test)
 
-            if score > scoreActual:
-                print(str(veins) + " donen: " + str(score))
-                scoreActual = score
-                bestVecinos = veins
+                score = accuracy_score(y_true=Y_test, y_pred=Y_aux, normalize=False)
+
+                if score > scoreActual:
+                    print(str(veins) + " donen: " + str(score))
+                    scoreActual = score
+                    bestVecinos = veins
+                    bestDimensiones = dimensio
 
     return bestDimensiones, bestVecinos
 
+def cercaDeParametres(cv):
+    GridSearchCV(estimator=KNeighborsClassifier(),param_grid=,scoring=,cv=cv,)
+    pass
 
 
 if __name__ == "__main__":
@@ -149,5 +156,10 @@ if __name__ == "__main__":
     # Parte 4
     n_dimensiones, n_vecinos = compute_test(X, Y, KNeighborsClassifier(n_neighbors = 1), 10)
     print("VECINOS: " + str(n_vecinos) + " DIMENSIONES: " + str(n_dimensiones))
-    #predictor = generaKNN(n_vecinos)
+
+    predictor = generaKNN(n_vecinos)
     #Començem a predir!
+    X_new = calculaPCA(X, n_dimensiones)
+    predictor.fit(X_new, Y)
+
+    cercaDeParametres()
