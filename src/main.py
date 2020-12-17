@@ -110,7 +110,7 @@ def compute_test(X, Y, classifyingFunction, cv):
     return bestDimensiones, bestVecinos
 
 def cercaDeParametres(cv):
-    GridSearchCV(estimator=KNeighborsClassifier(),param_grid=,scoring=,cv=cv,)
+    #GridSearchCV(estimator=KNeighborsClassifier(),param_grid=,scoring=,cv=cv,)
     pass
 
 
