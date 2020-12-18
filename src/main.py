@@ -92,13 +92,13 @@ def compute_test(X, Y, classifyingFunction, cv):
     bestDimensiones = 0
     bestVecinos = 0
     for index_train, index_test in indices:
-        for veins in range(1, 13):
+        for veins in range(1, 50):
             predictor = KNeighborsClassifier(n_neighbors=veins, n_jobs=-1)
-            for dimensio in range(1, 13):
+            for dimensio in range(1, 64):
                 #X_new = calculaPCA(X, dimensio)
 
-                X_train = X_new[dimensio][index_train]
-                X_test = X_new[dimensio][index_test]
+                X_train = X_new[dimensio-1][index_train]
+                X_test = X_new[dimensio-1][index_test]
                 Y_train = Y[index_train]
                 Y_test = Y[index_test]
                 Y_aux = [len(Y_test)]
@@ -109,6 +109,7 @@ def compute_test(X, Y, classifyingFunction, cv):
                 score = accuracy_score(y_true=Y_test, y_pred=Y_aux, normalize=False)
 
                 if score > scoreActual:
+                    print("Accepted: " + str(veins) + " veins i " + str(dimensio) + "dimensiones")
                     scoreActual = score
                     bestVecinos = veins
                     bestDimensiones = dimensio
@@ -119,8 +120,9 @@ def compute_test(X, Y, classifyingFunction, cv):
 
 def cercaDeParametres(cv, X, Y):
     n_neighbours_max= 64
+    n_dimensions_max = 64
     n_neighbours = range(1,n_neighbours_max)
-    n_dimensions = range(1,64)
+    n_dimensions = range(1,n_dimensions_max)
     clf = GridSearchCV(estimator=KNeighborsClassifier(),
                 n_jobs=-1,
                  param_grid={'n_neighbors':n_neighbours}
@@ -137,16 +139,14 @@ def cercaDeParametres(cv, X, Y):
     #displayScatterPlot(n_dimensions, n_neighbours, score,"GridCV")
 
     for i in n_neighbours:
-        x = [i]*(n_neighbours_max-1)
-        plt.scatter(x, n_dimensions, c=score[i-1])
-
-
+        x = [i]*(n_dimensions_max-1)
+        plt.scatter(n_neighbours, x, c=score[i-1])
     plt.title('Scatter plot GridCV')
     plt.xlabel('Neighbours')
     plt.ylabel('Dimensions')
     plt.colorbar()
     plt.show()
-    print(clf.cv_results_)
+
 
 if __name__ == "__main__":
     digits = sklearn.datasets.load_digits()
@@ -188,11 +188,11 @@ if __name__ == "__main__":
     displayScatterPlot(X_lda, Y, Y,"LDA")
 
     # Parte 4
-    n_dimensiones, n_vecinos = compute_test(X, Y, KNeighborsClassifier(n_neighbors = 1), 10)
-    print("VECINOS: " + str(n_vecinos) + " DIMENSIONES: " + str(n_dimensiones))
+    #n_dimensiones, n_vecinos = compute_test(X, Y, KNeighborsClassifier(n_neighbors = 1), 10)
+    #print("VECINOS: " + str(n_vecinos) + " DIMENSIONES: " + str(n_dimensiones))
 
 
-    X_new = calculaPCA(X, n_dimensiones)
-    predictor = generaKNN(n_vecinos, X_new, Y)
+    #X_new = calculaPCA(X, n_dimensiones)
+    #predictor = generaKNN(n_vecinos, X_new, Y)
     #Començem a predir!
-    cercaDeParametres(10, X, Y)
+    #cercaDeParametres(10, X, Y)
