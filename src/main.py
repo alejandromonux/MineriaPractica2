@@ -188,11 +188,11 @@ if __name__ == "__main__":
     displayScatterPlot(X_lda, Y, Y,"LDA")
 
     # Parte 4
-    #n_dimensiones, n_vecinos = compute_test(X, Y, KNeighborsClassifier(n_neighbors = 1), 10)
-    #print("VECINOS: " + str(n_vecinos) + " DIMENSIONES: " + str(n_dimensiones))
+    n_dimensiones, n_vecinos = compute_test(X, Y, KNeighborsClassifier(n_neighbors = 1), 10)
+    print("VECINOS: " + str(n_vecinos) + " DIMENSIONES: " + str(n_dimensiones))
 
 
-    #X_new = calculaPCA(X, n_dimensiones)
-    #predictor = generaKNN(n_vecinos, X_new, Y)
+    X_new = calculaPCA(X, n_dimensiones)
+    predictor = generaKNN(n_vecinos, X_new, Y)
     #Començem a predir!
-    #cercaDeParametres(10, X, Y)
+    cercaDeParametres(10, X, Y)
