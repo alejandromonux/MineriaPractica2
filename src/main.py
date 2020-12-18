@@ -115,16 +115,12 @@ def compute_test(X, Y, classifyingFunction, cv):
     return bestDimensiones, bestVecinos
 
 def cercaDeParametres(cv, X, Y):
-    n_neighbours = range(1,10)
-    n_dimensions = range(1,10)
+    n_neighbours = range(1,64)
+    n_dimensions = range(1,64)
     clf = GridSearchCV(estimator=KNeighborsClassifier(),
                  param_grid={'n_neighbors':n_neighbours}
                  ,cv=cv)
 
-    #TODO: Algo que se puede hacer es un bucle que vaya probando las dimensiones y vamos poniéndolas en la gráfica
-    # Una línea por dimensión
-    # Para metodo de transformación grafica con PCA y con SVD
-    # Esquema de ponderació yo qué sé julio
     score = []
     for dimensions in n_dimensions:
         X_new=calculaPCA(X, dimensions)
@@ -132,12 +128,19 @@ def cercaDeParametres(cv, X, Y):
         score.append(clf.cv_results_['mean_test_score'])
 
 
-    displayScatterPlot(n_dimensions, n_neighbours, score,"GridCV")
-    #plt.plot(n_neighbours, score, label='Veins')
-    #plt.legend()
-    #plt.xlabel('neighbours')
-    #plt.ylabel('Mean score')
-    #plt.show()
+
+    #displayScatterPlot(n_dimensions, n_neighbours, score,"GridCV")
+
+    for i in n_neighbours:
+        x = [i]*(n_neighbours-1)
+        plt.scatter(x, n_dimensions, c=score[i-1])
+
+
+    plt.title('Scatter plot GridCV')
+    plt.xlabel('Neighbours')
+    plt.ylabel('Dimensions')
+    plt.colorbar()
+    plt.show()
     print(clf.cv_results_)
 
 if __name__ == "__main__":
