@@ -84,18 +84,21 @@ def generaKNN(numVeins, X, Y):
 def compute_test(X, Y, classifyingFunction, cv):
     splitter = sklearn.model_selection.KFold(n_splits=cv)
     indices = splitter.split(X, Y)
+    X_new = []
+    for dimensio in range(1, 64):
+        X_new.append(calculaPCA(X, dimensio))
 
     scoreActual = 0
     bestDimensiones = 0
     bestVecinos = 0
     for index_train, index_test in indices:
-        for veins in range(1, 60):
-            predictor = KNeighborsClassifier(n_neighbors=veins)
-            for dimensio in range(1, 64):
-                X_new = calculaPCA(X, dimensio)
+        for veins in range(1, 13):
+            predictor = KNeighborsClassifier(n_neighbors=veins, n_jobs=-1)
+            for dimensio in range(1, 13):
+                #X_new = calculaPCA(X, dimensio)
 
-                X_train = X_new[index_train]
-                X_test = X_new[index_test]
+                X_train = X_new[dimensio][index_train]
+                X_test = X_new[dimensio][index_test]
                 Y_train = Y[index_train]
                 Y_test = Y[index_test]
                 Y_aux = [len(Y_test)]
@@ -115,9 +118,11 @@ def compute_test(X, Y, classifyingFunction, cv):
     return bestDimensiones, bestVecinos
 
 def cercaDeParametres(cv, X, Y):
-    n_neighbours = range(1,64)
+    n_neighbours_max= 64
+    n_neighbours = range(1,n_neighbours_max)
     n_dimensions = range(1,64)
     clf = GridSearchCV(estimator=KNeighborsClassifier(),
+                n_jobs=-1,
                  param_grid={'n_neighbors':n_neighbours}
                  ,cv=cv)
 
@@ -132,7 +137,7 @@ def cercaDeParametres(cv, X, Y):
     #displayScatterPlot(n_dimensions, n_neighbours, score,"GridCV")
 
     for i in n_neighbours:
-        x = [i]*(n_neighbours-1)
+        x = [i]*(n_neighbours_max-1)
         plt.scatter(x, n_dimensions, c=score[i-1])
 
 
@@ -183,11 +188,11 @@ if __name__ == "__main__":
     displayScatterPlot(X_lda, Y, Y,"LDA")
 
     # Parte 4
-    #n_dimensiones, n_vecinos = compute_test(X, Y, KNeighborsClassifier(n_neighbors = 1), 10)
-    #print("VECINOS: " + str(n_vecinos) + " DIMENSIONES: " + str(n_dimensiones))
+    n_dimensiones, n_vecinos = compute_test(X, Y, KNeighborsClassifier(n_neighbors = 1), 10)
+    print("VECINOS: " + str(n_vecinos) + " DIMENSIONES: " + str(n_dimensiones))
 
 
-    X_new = calculaPCA(X, 27)
-    predictor = generaKNN(3, X_new, Y)
+    X_new = calculaPCA(X, n_dimensiones)
+    predictor = generaKNN(n_vecinos, X_new, Y)
     #Començem a predir!
     cercaDeParametres(10, X, Y)
