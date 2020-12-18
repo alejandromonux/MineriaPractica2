@@ -62,8 +62,13 @@ def calculaLDA(X, Y):
 
     return lda.fit(X, Y).transform(X)
 
-def displayScatterPlot(X, Y, name):
-    plt.scatter(X[:, 0], X[:, 1], c=Y)
+def displayScatterPlot(X, Y, color ,name):
+    if name=="GridCV":
+        for i in X:
+            for j in Y:
+                plt.scatter(i, j, c=color[i-1][j-1])
+    else:
+        plt.scatter(X[:, 0], X[:, 1], c=color)
     plt.title('Scatter plot '+name)
     plt.xlabel('PC1')
     plt.ylabel('PC2')
@@ -111,6 +116,7 @@ def compute_test(X, Y, classifyingFunction, cv):
 
 def cercaDeParametres(cv, X, Y):
     n_neighbours = range(1,10)
+    n_dimensions = range(1,10)
     clf = GridSearchCV(estimator=KNeighborsClassifier(),
                  param_grid={'n_neighbors':n_neighbours}
                  ,cv=cv)
@@ -119,14 +125,19 @@ def cercaDeParametres(cv, X, Y):
     # Una línea por dimensión
     # Para metodo de transformación grafica con PCA y con SVD
     # Esquema de ponderació yo qué sé julio
-    clf.fit(X, Y)
+    score = []
+    for dimensions in n_dimensions:
+        X_new=calculaPCA(X, dimensions)
+        clf.fit(X_new, Y)
+        score.append(clf.cv_results_['mean_test_score'])
 
-    score = clf.cv_results_['mean_test_score']
-    plt.plot(n_neighbours, score, label='Veins')
-    plt.legend()
-    plt.xlabel('neighbours')
-    plt.ylabel('Mean score')
-    plt.show()
+
+    displayScatterPlot(n_dimensions, n_neighbours, score,"GridCV")
+    #plt.plot(n_neighbours, score, label='Veins')
+    #plt.legend()
+    #plt.xlabel('neighbours')
+    #plt.ylabel('Mean score')
+    #plt.show()
     print(clf.cv_results_)
 
 if __name__ == "__main__":
@@ -161,12 +172,12 @@ if __name__ == "__main__":
     X_svd = calculaSVD(X) #Si pasamos la X normlaizada, nos saldrá igual que en PCA
 
     #Opcional: Visualización
-    displayScatterPlot(X_pca, Y, "PCA")
-    displayScatterPlot(X_svd, Y, "SVD")
+    displayScatterPlot(X_pca, Y, Y,"PCA")
+    displayScatterPlot(X_svd, Y, Y,"SVD")
 
     # LDA
     X_lda = calculaLDA(X, Y)
-    displayScatterPlot(X_lda, Y, "LDA")
+    displayScatterPlot(X_lda, Y, Y,"LDA")
 
     # Parte 4
     #n_dimensiones, n_vecinos = compute_test(X, Y, KNeighborsClassifier(n_neighbors = 1), 10)
@@ -176,4 +187,4 @@ if __name__ == "__main__":
     X_new = calculaPCA(X, 27)
     predictor = generaKNN(3, X_new, Y)
     #Començem a predir!
-    cercaDeParametres(10, X_new, Y)
+    cercaDeParametres(10, X, Y)
