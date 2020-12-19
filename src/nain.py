@@ -2,6 +2,7 @@ import numpy
 import sklearn.model_selection as ms
 import sklearn.decomposition as dec
 import sklearn.discriminant_analysis as da
+import sklearn.metrics as met
 import sklearn.neighbors as n
 import sklearn.datasets
 import matplotlib.pyplot as plt
@@ -34,14 +35,67 @@ def normalizeZScore(X):
             X[i][j] -= XMean
     return X
 
-def compute_test(x_test, y_test, clf, cv):
-    Kfolds = sklearn.model_selection.Kfold(...)
 
-    scores = []
-    for i, j in Kfolds:
-        # ...
-        scores.append()
-    return scores
+def compute_test(X, Y, cv):
+    splitter = sklearn.model_selection.KFold(n_splits=cv)
+    indices = splitter.split(X, Y)
+
+    scoreActual = 0
+    bestDimensiones = 0
+    bestVecinos = 0
+    for index_train, index_test in indices:
+        for veins in range(1, 60):
+            predictor = n.KNeighborsClassifier(n_neighbors=veins)
+            for dimensio in range(1, 64):
+                pca = dec.PCA(n_components=dimensio)
+                X_new = pca.fit_transform(X)
+
+                X_train = X_new[index_train]
+                X_test = X_new[index_test]
+                Y_train = Y[index_train]
+                Y_test = Y[index_test]
+                Y_aux = [len(Y_test)]
+
+                predictor.fit(X_train, Y_train)
+                Y_aux = predictor.predict(X_test)
+
+                score = met.accuracy_score(y_true=Y_test, y_pred=Y_aux, normalize=False)
+
+                if score > scoreActual:
+                    scoreActual = score
+                    bestVecinos = veins
+                    bestDimensiones = dimensio
+
+    return bestDimensiones, bestVecinos
+
+
+def cercaDeParametres(cv, X, Y):
+    n_neighbours_max = 64
+    n_dimensions_max = 64
+    n_neighbours = range(1, n_neighbours_max)
+    n_dimensions = range(1, n_dimensions_max)
+    clf = ms.GridSearchCV(estimator=n.KNeighborsClassifier(),
+                          n_jobs=-1,
+                          param_grid={'n_neighbors': n_neighbours}
+                          , cv=cv)
+
+    score = []
+    for dimensions in n_dimensions:
+        pca = dec.PCA(n_components=dimensions)
+        X_new = pca.fit(X).transform(X)
+        clf.fit(X_new, Y)
+        score.append(clf.cv_results_['mean_test_score'])
+
+    # displayScatterPlot(n_dimensions, n_neighbours, score,"GridCV")
+
+    for i in n_neighbours:
+        x = [i] * (n_dimensions_max - 1)
+        plt.scatter(n_neighbours, x, c=score[i - 1])
+    plt.title('Scatter plot GridCV')
+    plt.xlabel('Neighbours')
+    plt.ylabel('Dimensions')
+    plt.colorbar()
+    plt.show()
 
 
 if __name__ == '__main__':
@@ -86,7 +140,7 @@ if __name__ == '__main__':
     #   3
     # 2 Component PCA
     pca = dec.PCA(n_components=2)
-    X_pca = pca.fit_transform(X)
+    X_pca = pca.fit(X).transform(X)
     print('PCA 2 Components:')
     print(X_pca)
     # Plot PCA
@@ -97,7 +151,7 @@ if __name__ == '__main__':
 
     # 2 Component SVD
     svd = dec.TruncatedSVD()
-    X_svd = svd.fit_transform(X)
+    X_svd = svd.fit(X).transform(X)
     print('SVD 2 Components:')
     print(X_svd)
     # Plot SVD
@@ -108,7 +162,7 @@ if __name__ == '__main__':
 
     # Discrimination of data LDA
     lda = da.LinearDiscriminantAnalysis()
-    X_lda = lda.fit_transform(X, Y)
+    X_lda = lda.fit(X, Y).transform(X)
     print('LDA 2 Components:')
     print(X_lda)
     # Plot LDA
@@ -122,10 +176,14 @@ if __name__ == '__main__':
     kf = ms.KFold(n_splits=10)
     for train_index, test_index in kf.split(X):
         print("TRAIN:", train_index, "TEST:", test_index)
-
     # Test function
-    # compute_test()
+    n_dimensions, n_neighbors = compute_test(X, Y, 10)
+    print("Best = N_Neighbors= " + str(n_neighbors) + " & N_Dimensions= " + str(n_dimensions))
 
     # K-NN
-    knn = n.KNeighborsClassifier(n_neighbors=3)
-    knn.fit(X, Y)
+    pca = dec.PCA(n_components=n_dimensions)
+    X_new = pca.fit(X).transform(X)
+    knn = n.KNeighborsClassifier(n_neighbors=n_neighbors)
+    predict = knn.fit(X_new, Y)
+    # Plot
+    cercaDeParametres(10, X, Y)
