@@ -90,6 +90,7 @@ def compute_test(X, Y, classifyingFunction, cv):
     progress = 1
     for index_train, index_test in indices:
         print("Progress (" + str(progress) + "/10)")
+        progress += 1
         for veins in range(1, 50):
             predictor = KNeighborsClassifier(n_neighbors=veins, n_jobs=-1)
             for dimensio in range(1, 64):
@@ -111,8 +112,6 @@ def compute_test(X, Y, classifyingFunction, cv):
                     scoreActual = score
                     bestVecinos = veins
                     bestDimensiones = dimensio
-
-        progress += 1
 
     return bestDimensiones, bestVecinos
 
