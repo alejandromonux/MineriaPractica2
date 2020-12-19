@@ -41,14 +41,13 @@ def compute_test(X, Y, cv):
     indices = splitter.split(X, Y)
 
     scoreActual = 0
-    bestDimensiones = 0
-    bestVecinos = 0
+    best_dimensions = 0
+    best_neighbors = 0
     for index_train, index_test in indices:
-        for veins in range(1, 60):
-            predictor = n.KNeighborsClassifier(n_neighbors=veins)
-            for dimensio in range(1, 64):
-                pca = dec.PCA(n_components=dimensio)
-                X_new = pca.fit_transform(X)
+        for neighbors in range(1, 180):
+            predictor = n.KNeighborsClassifier(n_neighbors=neighbors)
+            for dimension in range(1, 64):
+                X_new = calculate_PCA(X, dimension)
 
                 X_train = X_new[index_train]
                 X_test = X_new[index_test]
@@ -63,15 +62,15 @@ def compute_test(X, Y, cv):
 
                 if score > scoreActual:
                     scoreActual = score
-                    bestVecinos = veins
-                    bestDimensiones = dimensio
+                    best_neighbors = neighbors
+                    best_dimensions = dimension
 
-    return bestDimensiones, bestVecinos
+    return best_dimensions, best_neighbors
 
 
-def cercaDeParametres(cv, X, Y):
-    n_neighbours_max = 64
-    n_dimensions_max = 64
+def cercaDeParametres(cv, X, Y, size):
+    n_neighbours_max = size
+    n_dimensions_max = size
     n_neighbours = range(1, n_neighbours_max)
     n_dimensions = range(1, n_dimensions_max)
     clf = ms.GridSearchCV(estimator=n.KNeighborsClassifier(),
@@ -81,8 +80,7 @@ def cercaDeParametres(cv, X, Y):
 
     score = []
     for dimensions in n_dimensions:
-        pca = dec.PCA(n_components=dimensions)
-        X_new = pca.fit(X).transform(X)
+        X_new = calculate_PCA(X, dimensions)
         clf.fit(X_new, Y)
         score.append(clf.cv_results_['mean_test_score'])
 
@@ -96,6 +94,21 @@ def cercaDeParametres(cv, X, Y):
     plt.ylabel('Dimensions')
     plt.colorbar()
     plt.show()
+
+
+def calculate_PCA(X, n_c):
+    pca = dec.PCA(n_components=n_c)
+    return pca.fit(X).transform(X)
+
+
+def calculate_SVD(X):
+    svd = dec.TruncatedSVD()
+    return svd.fit(X).transform(X)
+
+
+def calculate_LDA(X, Y):
+    lda = da.LinearDiscriminantAnalysis()
+    return lda.fit(X, Y).transform(X)
 
 
 if __name__ == '__main__':
@@ -118,7 +131,7 @@ if __name__ == '__main__':
     print(n_x_classe)
 
     # Plot mean of one class of examples
-    plt.imshow(numpy.reshape(X[Y == 5, :].mean(axis=0), [8, 8]))
+    plt.imshow(numpy.reshape(X[Y == 6, :].mean(axis=0), [8, 8]))
     plt.show()
 
     #   2
@@ -139,8 +152,7 @@ if __name__ == '__main__':
 
     #   3
     # 2 Component PCA
-    pca = dec.PCA(n_components=2)
-    X_pca = pca.fit(X).transform(X)
+    X_pca = calculate_PCA(X, 2)
     print('PCA 2 Components:')
     print(X_pca)
     # Plot PCA
@@ -150,8 +162,7 @@ if __name__ == '__main__':
     plt.show()
 
     # 2 Component SVD
-    svd = dec.TruncatedSVD()
-    X_svd = svd.fit(X).transform(X)
+    X_svd = calculate_SVD(X)
     print('SVD 2 Components:')
     print(X_svd)
     # Plot SVD
@@ -161,8 +172,7 @@ if __name__ == '__main__':
     plt.show()
 
     # Discrimination of data LDA
-    lda = da.LinearDiscriminantAnalysis()
-    X_lda = lda.fit(X, Y).transform(X)
+    X_lda = calculate_LDA(X, Y)
     print('LDA 2 Components:')
     print(X_lda)
     # Plot LDA
@@ -173,17 +183,16 @@ if __name__ == '__main__':
 
     #   4
     # 10 fold cross validation
-    kf = ms.KFold(n_splits=10)
-    for train_index, test_index in kf.split(X):
-        print("TRAIN:", train_index, "TEST:", test_index)
+    # kf = ms.KFold(n_splits=10)
+    # for train_index, test_index in kf.split(X):
+    #    print("TRAIN:", train_index, "TEST:", test_index)
     # Test function
     n_dimensions, n_neighbors = compute_test(X, Y, 10)
     print("Best = N_Neighbors= " + str(n_neighbors) + " & N_Dimensions= " + str(n_dimensions))
-
+    # Best = N_Neighbors= 3 & N_Dimensions= 27
     # K-NN
-    pca = dec.PCA(n_components=n_dimensions)
-    X_new = pca.fit(X).transform(X)
+    X_new = calculate_PCA(X, n_dimensions)
     knn = n.KNeighborsClassifier(n_neighbors=n_neighbors)
     predict = knn.fit(X_new, Y)
     # Plot
-    cercaDeParametres(10, X, Y)
+    cercaDeParametres(10, X, Y, 64)
