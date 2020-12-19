@@ -177,7 +177,7 @@ if __name__ == "__main__":
     # transform para aplicar en esos datos lo que pretendemos hacer
 
     # PCA
-    # Menor dispersión y reducción de la dimensionalidad.
+    # Mayor dispersión y reducción de la dimensionalidad.
     # Cambiar las dimensiones manteniendo la máxima varianza posible.
     X_pca = calculaPCA(X, 2)
     # SVD
@@ -188,7 +188,7 @@ if __name__ == "__main__":
     displayScatterPlot(X_svd, Y, "SVD")
 
     # LDA. Otro tipo de representación
-    # Aumentar la visualización de los datos
+    # Aumentar la visualización de los datos.
     X_lda = calculaLDA(X, Y)
     displayScatterPlot(X_lda, Y, "LDA")
 
@@ -200,6 +200,6 @@ if __name__ == "__main__":
     # X_new = calculaPCA(X, n_dimensiones)
     # predictor = generaKNN(n_vecinos, X_new, Y)
 
-    # Finalmente mostramos una gráfica donde se muestra los diferentes resultados de predicción según veciones y
+    # Finalmente mostramos una gráfica donde se muestra los diferentes resultados de predicción según vecinos y
     # dimensiones, mediante GridSearchCV
     cercaDeParametres(10, X, Y)
