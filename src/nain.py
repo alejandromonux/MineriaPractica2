@@ -9,18 +9,21 @@ import matplotlib.pyplot as plt
 
 
 def calcEstBas(X, Y):
+    # Mean of each attribute
     mitj = numpy.zeros(X.shape[1])
     for i in range(0, X.shape[0]):
         for j in range(0, X.shape[1]):
             mitj[j] += X[i][j]
     mitj = mitj / X.shape[0]
 
+    # Tipical deviation
     desv = numpy.zeros(X.shape[1])
     for i in range(0, X.shape[0]):
         for j in range(0, X.shape[1]):
             desv[j] += (X[i][j] - mitj[j]) ** 2
     desv = numpy.sqrt(desv / X.shape[0])
 
+    # N examples per class
     n_x_c = numpy.zeros(10)
     for t in Y:
         n_x_c[t] += 1
@@ -37,8 +40,13 @@ def normalizeZScore(X):
 
 
 def compute_test(X, Y, cv):
-    splitter = sklearn.model_selection.KFold(n_splits=cv)
-    indices = splitter.split(X, Y)
+    # 10 fold cross validation
+    # kf = ms.KFold(n_splits=10)
+    # for train_index, test_index in kf.split(X):
+    #    print("TRAIN:", train_index, "TEST:", test_index)
+
+    kf = ms.KFold(n_splits=cv)
+    indices = kf.split(X, Y)
 
     scoreActual = 0
     best_dimensions = 0
@@ -121,7 +129,7 @@ if __name__ == '__main__':
     print(Y.shape)
     # print(digits.DESCR)
 
-    # Calculation of Basci estadistics
+    # Calculation of Basic estadistics
     mitjana, desviacio_tipica, n_x_classe = calcEstBas(X, Y)
     print('Mean:')
     print(mitjana)
@@ -182,11 +190,8 @@ if __name__ == '__main__':
     plt.show()
 
     #   4
-    # 10 fold cross validation
-    # kf = ms.KFold(n_splits=10)
-    # for train_index, test_index in kf.split(X):
-    #    print("TRAIN:", train_index, "TEST:", test_index)
     # Test function
+    # Find the best pair of number of neighbors and dimension in KNN
     n_dimensions, n_neighbors = compute_test(X, Y, 10)
     print("Best = N_Neighbors= " + str(n_neighbors) + " & N_Dimensions= " + str(n_dimensions))
     # Best = N_Neighbors= 3 & N_Dimensions= 27
@@ -194,5 +199,5 @@ if __name__ == '__main__':
     X_new = calculate_PCA(X, n_dimensions)
     knn = n.KNeighborsClassifier(n_neighbors=n_neighbors)
     predict = knn.fit(X_new, Y)
-    # Plot
+    # Plot of the diferent prediction results depending on dimension and neighbors with GridSearchCV
     cercaDeParametres(10, X, Y, 64)
