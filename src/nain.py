@@ -44,7 +44,7 @@ def compute_test(X, Y, cv):
     best_dimensions = 0
     best_neighbors = 0
     for index_train, index_test in indices:
-        for neighbors in range(1, 60):
+        for neighbors in range(1, 180):
             predictor = n.KNeighborsClassifier(n_neighbors=neighbors)
             for dimension in range(1, 64):
                 X_new = calculate_PCA(X, dimension)
@@ -68,9 +68,9 @@ def compute_test(X, Y, cv):
     return best_dimensions, best_neighbors
 
 
-def cercaDeParametres(cv, X, Y):
-    n_neighbours_max = 64
-    n_dimensions_max = 64
+def cercaDeParametres(cv, X, Y, size):
+    n_neighbours_max = size
+    n_dimensions_max = size
     n_neighbours = range(1, n_neighbours_max)
     n_dimensions = range(1, n_dimensions_max)
     clf = ms.GridSearchCV(estimator=n.KNeighborsClassifier(),
@@ -131,7 +131,7 @@ if __name__ == '__main__':
     print(n_x_classe)
 
     # Plot mean of one class of examples
-    plt.imshow(numpy.reshape(X[Y == 5, :].mean(axis=0), [8, 8]))
+    plt.imshow(numpy.reshape(X[Y == 6, :].mean(axis=0), [8, 8]))
     plt.show()
 
     #   2
@@ -189,10 +189,10 @@ if __name__ == '__main__':
     # Test function
     n_dimensions, n_neighbors = compute_test(X, Y, 10)
     print("Best = N_Neighbors= " + str(n_neighbors) + " & N_Dimensions= " + str(n_dimensions))
-
+    # Best = N_Neighbors= 3 & N_Dimensions= 27
     # K-NN
     X_new = calculate_PCA(X, n_dimensions)
     knn = n.KNeighborsClassifier(n_neighbors=n_neighbors)
     predict = knn.fit(X_new, Y)
     # Plot
-    cercaDeParametres(10, X, Y)
+    cercaDeParametres(10, X, Y, 64)
