@@ -195,7 +195,7 @@ if __name__ == "__main__":
     # ---> Parte 4 del enunciado
     # Encontramos el mejor conjunto de veciones y dimensiones mediante KNN
     n_dimensiones, n_vecinos = compute_test(X, Y, KNeighborsClassifier(n_neighbors=1), 10)
-    print("VECINOS: " + str(n_vecinos) + " DIMENSIONES: " + str(n_dimensiones))
+    print("Mejor combinación --> VECINOS: " + str(n_vecinos) + " DIMENSIONES: " + str(n_dimensiones))
 
     # X_new = calculaPCA(X, n_dimensiones)
     # predictor = generaKNN(n_vecinos, X_new, Y)
