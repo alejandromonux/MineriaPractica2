@@ -4,7 +4,7 @@ import numpy as np
 import sklearn.cross_decomposition
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.metrics import accuracy_score
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import AdaBoostClassifier
@@ -23,7 +23,7 @@ def compute_testNews(x_test, y_test, clf, cv):
     indices = splitter.split(x_test, y_test)
     score = []
     loopX = x_test.toarray()
-    loopX = calculaPCA(loopX, 30)
+    #loopX = calculaPCA(loopX, 30)
     for index_train, index_test in indices:
         XtestFraction = loopX[index_test]
         YtestFraction = y_test[index_test]
@@ -61,7 +61,7 @@ def testIGrafica(clf, cv, X, Y):
 
 
 def KNNCerca(X, Y):
-    X_train, X_test, Y_train, Y_test = ns.train_test_split(X, Y, test_size=0.3)
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3)
     # Generate possible values of the exploration Grid
     k = np.arange(128) + 1
 
@@ -86,7 +86,7 @@ def KNNCerca(X, Y):
 
 
 def NNCerca(X, Y):
-    X_train, X_test, Y_train, Y_test = ns.train_test_split(X, Y, test_size=0.3)
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3)
 
     # Parameter creation
     # sizes=(np.arange(100)+1,np.arange(100)+1,)
@@ -108,12 +108,12 @@ def NNCerca(X, Y):
 
     # Compute Test Accuracy with the already defined function (it has to be adapted)
     # score = compute_test(x_test=X_test,y_test = Y_test, clf = clf, cv =10)
-    mtsTEST = compute_test(X, Y, clf, 10)
-    return clf, mtsTEST
+    #mtsTEST = compute_test(X, Y, clf, 10)
+    return clf
 
 
 def adaBoostCerca(X, Y):
-    X_train, X_test, Y_train, Y_test = ns.train_test_split(X, Y, test_size=0.3)
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3)
 
     parameters = {'n_estimators': np.arange(64) + 1}
     adaboost = AdaBoostClassifier()
@@ -125,8 +125,8 @@ def adaBoostCerca(X, Y):
     # score = compute_test(x_test=X_test,y_test = Y_test, clf = clf, cv =10)
     bestParams = clf.best_params_
     mtsGRID = clf.cv_results_["mean_test_score"]
-    mtsTEST = compute_test(X, Y, clf, 10)
-    return bestParams, mtsGRID, mtsTEST
+    #mtsTEST = compute_test(X, Y, clf, 10)
+    return bestParams, mtsGRID
 
 
 def plotArray(input, title):
@@ -173,9 +173,10 @@ if __name__ == "__main__":
     digits = sklearn.datasets.load_digits()
     X = digits.data
     Y = digits.target
+
     # veins, mts = cercaDeParametres(X, Y)
     # plotArray(mts, "KNN")
-    newsGroup()
+
     # bestNN = NNCerca(X,Y)
     # a = bestNN.cv_results_["mean_test_score"]
     # plotArray(a, "DNN")
@@ -184,12 +185,7 @@ if __name__ == "__main__":
     # bestAdaBoost, mtsAdaboost = adaBoostCerca(X,Y)
     # plotArray(mtsAdaboost, "AdaBoost")
 
-    # X_train, X_test, Y_train, Y_test = ns.train_test_split(X, Y, test_size=0.3)
-    # clf = AdaBoostClassifier(n_estimators=5)
-    # Fit the data
-    # clf.fit(X_train, Y_train)
-    # score = accuracy_score(y_true=Y_test, y_pred=clf.predict(X_test), normalize=False)
-    # print("Score: " + str(score) + " De: " + str(len(X_test)))
-    # b = bestVeins.cv_results_["mean_test_score"]
-
     # print("Score:" + str(a))
+
+    newsGroup()
+
