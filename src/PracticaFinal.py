@@ -1,9 +1,3 @@
-# Import the required packages
-import sklearn
-import sklearn.datasets
-import sklearn.model_selection as ns
-import sklearn.discriminant_analysis
-import sklearn.decomposition
 import sklearn.neighbors
 import sklearn.metrics
 import numpy as np
@@ -15,6 +9,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import AdaBoostClassifier
 import matplotlib.pyplot as plt
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 def calculaPCA(X, components):
@@ -23,18 +18,23 @@ def calculaPCA(X, components):
     return pca.fit(X).transform(X)
 
 
-def compute_test(x_test, y_test, clf, cv):
+def compute_testNews(x_test, y_test, clf, cv):
     splitter = sklearn.model_selection.KFold(n_splits=cv)
     indices = splitter.split(x_test, y_test)
     score = []
+    loopX = x_test.toarray()
+    loopX = calculaPCA(loopX, 30)
     for index_train, index_test in indices:
-        X_test = x_test[index_test]
-        Y_test = y_test[index_test]
+        XtestFraction = loopX[index_test]
+        YtestFraction = y_test[index_test]
         # clf.fit(X_train, Y_train)
         # clf.predict(X_test, Y_test)
         # clf.score(X_test, Y_test)
-        score.append(accuracy_score(Y_test, clf.predict(X_test)))
-    return score
+        pred = clf.predict(XtestFraction)
+        score.append(accuracy_score(YtestFraction, pred))
+
+    scoreOut = sum(score) / len(score)
+    return scoreOut
 
 
 def testIGrafica(clf, cv, X, Y):
@@ -78,9 +78,11 @@ def KNNCerca(X, Y):
     # Perform exploratory grid search over TrainingData
     clf.fit(X_train, Y_train)
     bestParam = clf.best_params_["n_neighbors"]
-    mts = clf.cv_results_["mean_test_score"]
-    testIGrafica(10, X, Y)
-    return bestParam, mts
+    mtsGRID = clf.cv_results_["mean_test_score"]
+    # testIGrafica(10, X, Y)
+    # mtsTEST = compute_test(X,Y,clf,10)
+    mtsGRID = sum(mtsGRID) / len(mtsGRID)
+    return bestParam, mtsGRID
 
 
 def NNCerca(X, Y):
@@ -106,7 +108,8 @@ def NNCerca(X, Y):
 
     # Compute Test Accuracy with the already defined function (it has to be adapted)
     # score = compute_test(x_test=X_test,y_test = Y_test, clf = clf, cv =10)
-    return clf
+    mtsTEST = compute_test(X, Y, clf, 10)
+    return clf, mtsTEST
 
 
 def adaBoostCerca(X, Y):
@@ -121,8 +124,9 @@ def adaBoostCerca(X, Y):
     # Compute Test Accuracy with the already defined function (it has to be adapted)
     # score = compute_test(x_test=X_test,y_test = Y_test, clf = clf, cv =10)
     bestParams = clf.best_params_
-    mts = clf.cv_results_["mean_test_score"]
-    return bestParams, mts
+    mtsGRID = clf.cv_results_["mean_test_score"]
+    mtsTEST = compute_test(X, Y, clf, 10)
+    return bestParams, mtsGRID, mtsTEST
 
 
 def plotArray(input, title):
@@ -147,11 +151,22 @@ def poltTrainTest(train, test):
 
 def newsGroup():
     # Importamos el dataset
-    newsgroups_train = fetch_20newsgroups(subset='train')
-    newsgroups_test = fetch_20newsgroups(subset='test')
+    newsgroups_train = fetch_20newsgroups(subset='train', remove=('headers', 'footers', 'quotes'))
+    newsgroups_test = fetch_20newsgroups(subset='test', remove=('headers', 'footers', 'quotes'))
 
     # Vectorizamos
-    print(newsgroups_train.DESCR)
+    vectorizer = TfidfVectorizer()
+    vectors = vectorizer.fit_transform(newsgroups_train.data)  # Será la X
+    # print(newsgroups_train.DESCR)
+    # bestVeins, mtsGRID = KNNCerca(vectors, newsgroups_train.target)
+    KNN = KNeighborsClassifier(5, n_jobs=-1)
+    KNN.fit(vectors, newsgroups_train.target)
+    # Test
+    vectors_test = vectorizer.fit_transform(newsgroups_test.data)  # Será la X
+    mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, KNN, 10)
+    # finalScoreKNN = (mtsGRID+mtsTEST)/2
+    # print("GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreKNN))
+    print(mtsTEST)
 
 
 if __name__ == "__main__":
