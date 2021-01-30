@@ -177,18 +177,23 @@ def newsGroup():
 
 
     # NN va bien para las noticias ?
-    clfNN = NNCerca(x_train, newsgroups_train.target)
-    neuralNetwork = MLPClassifier(hidden_layer_sizes=clfNN.best_params_["hidden_layer_sizes"],activation=clfNN.best_params_["activation"] ,solver='sgd', learning_rate='constant', learning_rate_init=0.02)
-    neuralNetwork.fit(x_train, newsgroups_train.target)
-    mtsGRID = sum(clfNN.cv_results_["mean_test_score"]) / len(clfNN.cv_results_["mean_test_score"])
-    print(mtsGRID)
-    mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, neuralNetwork, 10)
-    finalScoreKNN = (mtsGRID+mtsTEST)/2
-    print("Params:" + str(clfNN.best_params_) + "GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreKNN))
+    #clfNN = NNCerca(x_train, newsgroups_train.target)
+    #neuralNetwork = MLPClassifier(hidden_layer_sizes=clfNN.best_params_["hidden_layer_sizes"],activation=clfNN.best_params_["activation"] ,solver='sgd', learning_rate='constant', learning_rate_init=0.02)
+    #neuralNetwork.fit(x_train, newsgroups_train.target)
+    #mtsGRID = sum(clfNN.cv_results_["mean_test_score"]) / len(clfNN.cv_results_["mean_test_score"])
+    #print(mtsGRID)
+    #mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, neuralNetwork, 10)
+    #finalScoreKNN = (mtsGRID+mtsTEST)/2
+    #print("Params:" + str(clfNN.best_params_) + "GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreKNN))
 
     # Adaboost va? bien para las noticias
-    #adaBoostCerca(x_train, newsgroups_train.target)
-
+    bestParams, mtsGRID = adaBoostCerca(x_train, newsgroups_train.target)
+    adaboost = AdaBoostClassifier(n_estimators=bestParams["n_estimators"])
+    adaboost.fit(x_train, newsgroups_train.target)
+    print(mtsGRID)
+    mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, adaboost, 10)
+    finalScoreAdaboost = (mtsGRID+mtsTEST)/2
+    print("Params:" + str(clfNN.best_params_) + "GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreAdaboost))
 
 if __name__ == "__main__":
     digits = sklearn.datasets.load_digits()
