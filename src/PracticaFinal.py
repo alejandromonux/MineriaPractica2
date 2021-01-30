@@ -156,17 +156,17 @@ def newsGroup():
     vectors = vectorizer.fit_transform(newsgroups_train.data)  # Será la X
     x_train = vectors.toarray()
     x_train = calculaPCA(x_train, 30)
+    vectors_test = vectorizer.fit_transform(newsgroups_test.data)  # Será la X
 
     # KNN no va bien para las noticias
-    bestVeins, mtsGRID = KNNCerca(vectors, newsgroups_train.target, 30)
-    KNN = KNeighborsClassifier(bestVeins, n_jobs=-1)
-    KNN.fit(x_train, newsgroups_train.target)
+    #bestVeins, mtsGRID = KNNCerca(vectors, newsgroups_train.target, 30)
+    #KNN = KNeighborsClassifier(bestVeins, n_jobs=-1)
+    #KNN.fit(x_train, newsgroups_train.target)
 
     # Test
-    vectors_test = vectorizer.fit_transform(newsgroups_test.data)  # Será la X
-    mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, KNN, 10)
-    finalScoreKNN = (mtsGRID+mtsTEST)/2
-    print("GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreKNN))
+    #mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, KNN, 10)
+    #finalScoreKNN = (mtsGRID+mtsTEST)/2
+    #print("GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreKNN))
 
 
     # NN (no) va bien para las noticias
@@ -174,9 +174,10 @@ def newsGroup():
     neuralNetwork = MLPClassifier(hidden_layer_sizes=clfNN.best_params_["hidden_layer_sizes"],activation=clfNN.best_params_["activation"] ,solver='sgd', learning_rate='constant', learning_rate_init=0.02)
     neuralNetwork.fit(x_train, newsgroups_train)
     mtsGRID = sum(clfNN.cv_results_["mean_test_score"]) / len(clfNN.cv_results_["mean_test_score"])
-    mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, neuralNetwork, 10)
-    finalScoreKNN = (mtsGRID+mtsTEST)/2
-    print("Params:" + str(clfNN.cv_results_) + "GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreKNN))
+    print(mtsGRID)
+    #mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, neuralNetwork, 10)
+    #finalScoreKNN = (mtsGRID+mtsTEST)/2
+    #print("Params:" + str(clfNN.cv_results_) + "GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreKNN))
 
 
 
