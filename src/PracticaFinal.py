@@ -172,6 +172,7 @@ def newsGroup():
     # NN (no) va bien para las noticias
     clfNN = NNCerca(X, Y)
     neuralNetwork = MLPClassifier(hidden_layer_sizes=clfNN.best_params_["hidden_layer_sizes"],activation=clfNN.best_params_["activation"] ,solver='sgd', learning_rate='constant', learning_rate_init=0.02)
+    neuralNetwork.fit(x_train, newsgroups_train)
     mtsGRID = sum(clfNN.cv_results_["mean_test_score"]) / len(clfNN.cv_results_["mean_test_score"])
     mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, neuralNetwork, 10)
     finalScoreKNN = (mtsGRID+mtsTEST)/2
