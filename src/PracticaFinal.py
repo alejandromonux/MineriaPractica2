@@ -23,7 +23,7 @@ def compute_testNews(x_test, y_test, clf, cv):
     indices = splitter.split(x_test, y_test)
     score = []
     loopX = x_test.toarray()
-    #loopX = calculaPCA(loopX, 30)
+    loopX = calculaPCA(loopX, 30)
     for index_train, index_test in indices:
         XtestFraction = loopX[index_test]
         YtestFraction = y_test[index_test]
@@ -157,10 +157,11 @@ def newsGroup():
     # Vectorizamos
     vectorizer = TfidfVectorizer()
     vectors = vectorizer.fit_transform(newsgroups_train.data)  # Será la X
+    x_train = calculaPCA(vectors, 30)
     # print(newsgroups_train.DESCR)
     # bestVeins, mtsGRID = KNNCerca(vectors, newsgroups_train.target)
     KNN = KNeighborsClassifier(5, n_jobs=-1)
-    KNN.fit(vectors, newsgroups_train.target)
+    KNN.fit(x_train, newsgroups_train.target)
     # Test
     vectors_test = vectorizer.fit_transform(newsgroups_test.data)  # Será la X
     mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, KNN, 10)
