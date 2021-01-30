@@ -27,9 +27,6 @@ def compute_testNews(x_test, y_test, clf, cv):
     for index_train, index_test in indices:
         XtestFraction = loopX[index_test]
         YtestFraction = y_test[index_test]
-        # clf.fit(X_train, Y_train)
-        # clf.predict(X_test, Y_test)
-        # clf.score(X_test, Y_test)
         pred = clf.predict(XtestFraction)
         score.append(accuracy_score(YtestFraction, pred))
 
@@ -60,10 +57,10 @@ def testIGrafica(clf, cv, X, Y):
     plt.show()
 
 
-def KNNCerca(X, Y):
+def KNNCerca(X, Y, range):
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3)
     # Generate possible values of the exploration Grid
-    k = np.arange(128) + 1
+    k = np.arange(range) + 1
 
     # Infer all the exploratory surface into parameters struct
     # parameters = {'n_neighbors' : k,
@@ -157,16 +154,17 @@ def newsGroup():
     # Vectorizamos
     vectorizer = TfidfVectorizer()
     vectors = vectorizer.fit_transform(newsgroups_train.data)  # Será la X
-    x_train = calculaPCA(vectors, 30)
+    x_train = vectors.toarray()
+    x_train = calculaPCA(x_train, 30)
     # print(newsgroups_train.DESCR)
-    # bestVeins, mtsGRID = KNNCerca(vectors, newsgroups_train.target)
+    bestVeins, mtsGRID = KNNCerca(vectors, newsgroups_train.target, 30)
     KNN = KNeighborsClassifier(5, n_jobs=-1)
     KNN.fit(x_train, newsgroups_train.target)
     # Test
     vectors_test = vectorizer.fit_transform(newsgroups_test.data)  # Será la X
     mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, KNN, 10)
-    # finalScoreKNN = (mtsGRID+mtsTEST)/2
-    # print("GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreKNN))
+    finalScoreKNN = (mtsGRID+mtsTEST)/2
+    print("GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreKNN))
     print(mtsTEST)
 
 
