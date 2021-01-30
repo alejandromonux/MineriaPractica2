@@ -176,7 +176,7 @@ def newsGroup():
     #print("GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreKNN))
 
 
-    # NN va bien para las noticias ?
+    # NN va bien para las noticias ? No mucho
     #clfNN = NNCerca(x_train, newsgroups_train.target)
     #neuralNetwork = MLPClassifier(hidden_layer_sizes=clfNN.best_params_["hidden_layer_sizes"],activation=clfNN.best_params_["activation"] ,solver='sgd', learning_rate='constant', learning_rate_init=0.02)
     #neuralNetwork.fit(x_train, newsgroups_train.target)
@@ -190,8 +190,10 @@ def newsGroup():
     bestParams, mtsGRID = adaBoostCerca(x_train, newsgroups_train.target)
     adaboost = AdaBoostClassifier(n_estimators=bestParams["n_estimators"])
     adaboost.fit(x_train, newsgroups_train.target)
+    mtsGRID = sum(mtsGRID)/len(mtsGRID)
     print(mtsGRID)
     mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, adaboost, 10)
+    mtsTEST = sum(mtsTEST) / len(mtsTEST)
     finalScoreAdaboost = (mtsGRID+mtsTEST)/2
     print("Params:" + str(bestParams) + "GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreAdaboost))
 
