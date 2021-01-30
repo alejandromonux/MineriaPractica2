@@ -165,35 +165,35 @@ def newsGroup():
     x_train = calculaPCA(x_train, 30)
     vectors_test = vectorizer.fit_transform(newsgroups_test.data)  # Será la X
 
-    # KNN no va bien para las noticias
-    #bestVeins, mtsGRID = KNNCerca(x_train, newsgroups_train.target, 30)
-    #KNN = KNeighborsClassifier(bestVeins, n_jobs=-1)
-    #KNN.fit(x_train, newsgroups_train.target)
+    # KNN no va bien para las noticias ~ 0.25
+    bestVeins, mtsGRID = KNNCerca(x_train, newsgroups_train.target, 30)
+    KNN = KNeighborsClassifier(bestVeins, n_jobs=-1)
+    KNN.fit(x_train, newsgroups_train.target)
 
     # Test
-    #mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, KNN, 10)
-    #finalScoreKNN = (mtsGRID+mtsTEST)/2
-    #print("GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreKNN))
+    mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, KNN, 10)
+    finalScoreKNN = (mtsGRID+mtsTEST)/2
+    print("GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreKNN))
 
 
-    # NN va bien para las noticias ? No mucho
-    #clfNN = NNCerca(x_train, newsgroups_train.target)
-    #neuralNetwork = MLPClassifier(hidden_layer_sizes=clfNN.best_params_["hidden_layer_sizes"],activation=clfNN.best_params_["activation"] ,solver='sgd', learning_rate='constant', learning_rate_init=0.02)
-    #neuralNetwork.fit(x_train, newsgroups_train.target)
-    #mtsGRID = sum(clfNN.cv_results_["mean_test_score"]) / len(clfNN.cv_results_["mean_test_score"])
-    #print(mtsGRID)
-    #mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, neuralNetwork, 10)
-    #finalScoreKNN = (mtsGRID+mtsTEST)/2
-    #print("Params:" + str(clfNN.best_params_) + "GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreKNN))
+    # NN va bien para las noticias ? No mucho ~ 0.30
+    clfNN = NNCerca(x_train, newsgroups_train.target)
+    neuralNetwork = MLPClassifier(hidden_layer_sizes=clfNN.best_params_["hidden_layer_sizes"],activation=clfNN.best_params_["activation"] ,solver='sgd', learning_rate='constant', learning_rate_init=0.02)
+    neuralNetwork.fit(x_train, newsgroups_train.target)
+    mtsGRID = sum(clfNN.cv_results_["mean_test_score"]) / len(clfNN.cv_results_["mean_test_score"])
+    print(mtsGRID)
+    mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, neuralNetwork, 10)
+    finalScoreKNN = (mtsGRID+mtsTEST)/2
+    print("Params:" + str(clfNN.best_params_) + "GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreKNN))
 
-    # Adaboost va? bien para las noticias
+    # Adaboost va? bien para las noticias ~ 0.20
     bestParams, mtsGRID = adaBoostCerca(x_train, newsgroups_train.target)
     adaboost = AdaBoostClassifier(n_estimators=bestParams["n_estimators"])
     adaboost.fit(x_train, newsgroups_train.target)
     mtsGRID = sum(mtsGRID)/len(mtsGRID)
     print(mtsGRID)
     mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, adaboost, 10)
-    mtsTEST = sum(mtsTEST) / len(mtsTEST)
+    #mtsTEST = sum(mtsTEST) / len(mtsTEST)
     finalScoreAdaboost = (mtsGRID+mtsTEST)/2
     print("Params:" + str(bestParams) + "GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreAdaboost))
 
@@ -202,16 +202,16 @@ if __name__ == "__main__":
     X = digits.data
     Y = digits.target
 
-    # veins, mts = cercaDeParametres(X, Y)
-    # plotArray(mts, "KNN")
+    veins, mts = KNNCerca(X, Y)
+    plotArray(mts, "KNN")
 
-    # bestNN = NNCerca(X,Y)
-    # a = bestNN.cv_results_["mean_test_score"]
-    # plotArray(a, "DNN")
-    # print(str(bestNN.best_params_))
+    bestNN = NNCerca(X,Y)
+    a = bestNN.cv_results_["mean_test_score"]
+    plotArray(a, "DNN")
+    print(str(bestNN.best_params_))
 
-    # bestAdaBoost, mtsAdaboost = adaBoostCerca(X,Y)
-    # plotArray(mtsAdaboost, "AdaBoost")
+    bestAdaBoost, mtsAdaboost = adaBoostCerca(X,Y)
+    plotArray(mtsAdaboost, "AdaBoost")
 
     # print("Score:" + str(a))
 
