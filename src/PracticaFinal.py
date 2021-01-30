@@ -193,7 +193,7 @@ def newsGroup():
     print(mtsGRID)
     mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, adaboost, 10)
     finalScoreAdaboost = (mtsGRID+mtsTEST)/2
-    print("Params:" + str(clfNN.best_params_) + "GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreAdaboost))
+    print("Params:" + str(bestParams) + "GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreAdaboost))
 
 if __name__ == "__main__":
     digits = sklearn.datasets.load_digits()
