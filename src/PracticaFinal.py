@@ -155,9 +155,10 @@ def poltTrainTest(train, test):
 
 def newsGroup():
     # Importamos el dataset
-    newsgroups_train = fetch_20newsgroups(subset='train', remove=('headers', 'footers', 'quotes'))
-    newsgroups_test = fetch_20newsgroups(subset='test', remove=('headers', 'footers', 'quotes'))
-
+    #newsgroups_train = fetch_20newsgroups(subset='train', remove=('headers', 'footers', 'quotes'))
+    #newsgroups_test = fetch_20newsgroups(subset='test', remove=('headers', 'footers', 'quotes'))
+    newsgroups_train = fetch_20newsgroups(subset='train')
+    newsgroups_test = fetch_20newsgroups(subset='test')
     # Vectorizamos
     vectorizer = TfidfVectorizer()
     vectors = vectorizer.fit_transform(newsgroups_train.data)  # Será la X
@@ -198,20 +199,20 @@ def newsGroup():
     print("Params:" + str(bestParams) + "GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreAdaboost))
 
 if __name__ == "__main__":
-    digits = sklearn.datasets.load_digits()
-    X = digits.data
-    Y = digits.target
+    #digits = sklearn.datasets.load_digits()
+    #X = digits.data
+    #Y = digits.target
 
-    veins, mts = KNNCerca(X, Y)
-    plotArray(mts, "KNN")
+    #veins, mts = KNNCerca(X, Y, 30)
+    #plotArray(mts, "KNN")
 
-    bestNN = NNCerca(X,Y)
-    a = bestNN.cv_results_["mean_test_score"]
-    plotArray(a, "DNN")
-    print(str(bestNN.best_params_))
+    #bestNN = NNCerca(X,Y)
+    #a = bestNN.cv_results_["mean_test_score"]
+    #plotArray(a, "DNN")
+    #print(str(bestNN.best_params_))
 
-    bestAdaBoost, mtsAdaboost = adaBoostCerca(X,Y)
-    plotArray(mtsAdaboost, "AdaBoost")
+    #bestAdaBoost, mtsAdaboost = adaBoostCerca(X,Y)
+    #plotArray(mtsAdaboost, "AdaBoost")
 
     # print("Score:" + str(a))
 
