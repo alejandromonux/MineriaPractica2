@@ -158,7 +158,7 @@ def newsGroup():
     x_train = calculaPCA(x_train, 30)
     # print(newsgroups_train.DESCR)
     bestVeins, mtsGRID = KNNCerca(vectors, newsgroups_train.target, 30)
-    KNN = KNeighborsClassifier(5, n_jobs=-1)
+    KNN = KNeighborsClassifier(bestVeins, n_jobs=-1)
     KNN.fit(x_train, newsgroups_train.target)
     # Test
     vectors_test = vectorizer.fit_transform(newsgroups_test.data)  # Será la X
