@@ -18,7 +18,7 @@ def calculaPCA(X, components):
     return pca.fit(X).transform(X)
 
 
-def compute_testNews(x_test, y_test, clf, cv):
+def compute_test(x_test, y_test, clf, cv):
     splitter = sklearn.model_selection.KFold(n_splits=cv)
     indices = splitter.split(x_test, y_test)
     score = []
@@ -32,6 +32,13 @@ def compute_testNews(x_test, y_test, clf, cv):
 
     scoreOut = sum(score) / len(score)
     return scoreOut
+
+def compute_testNews(x_test, y_test, clf, cv):
+    loopX = x_test.toarray()
+    loopX = calculaPCA(loopX, 30)
+    pred = clf.predict(loopX)
+    score = accuracy_score(y_test, pred)
+    return score
 
 
 def testIGrafica(clf, cv, X, Y):
@@ -175,9 +182,9 @@ def newsGroup():
     neuralNetwork.fit(x_train, newsgroups_train)
     mtsGRID = sum(clfNN.cv_results_["mean_test_score"]) / len(clfNN.cv_results_["mean_test_score"])
     print(mtsGRID)
-    #mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, neuralNetwork, 10)
-    #finalScoreKNN = (mtsGRID+mtsTEST)/2
-    #print("Params:" + str(clfNN.cv_results_) + "GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreKNN))
+    mtsTEST = compute_testNews(vectors_test, newsgroups_test.target, neuralNetwork, 10)
+    finalScoreKNN = (mtsGRID+mtsTEST)/2
+    print("Params:" + str(clfNN.best_params_) + "GridScore: " + str(mtsGRID) + " testScore: " + str(mtsTEST) + " Final Score: " + str(finalScoreKNN))
 
 
 
