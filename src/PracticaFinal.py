@@ -185,7 +185,7 @@ def newsGroup():
 
     # KNN no va bien para las noticias ~ 0.25
     bestParams, cvResults , mtsTest, maxScore = KNNCerca(x_train, newsgroups_train.target, 30)
-    KNN = KNeighborsClassifier(bestParams["n_neighbours"], n_jobs=-1, news = True)
+    KNN = KNeighborsClassifier(bestParams["n_neighbors"], n_jobs=-1)
     KNN.fit(x_train, newsgroups_train.target)
     scoreOut, scoreMax = compute_test(x_test= x_test, y_test= newsgroups_test.target, clf = KNN, cv = 10)
     plotArray(cvResults["mean_test_score"], "KNN NEWSGROPUS20")
