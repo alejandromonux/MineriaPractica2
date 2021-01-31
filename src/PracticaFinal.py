@@ -188,24 +188,23 @@ def newsGroup():
     KNN = KNeighborsClassifier(bestParams["n_neighbors"], n_jobs=-1)
     KNN.fit(x_train, newsgroups_train.target)
     scoreOut, scoreMax = compute_test(x_test= x_test, y_test= newsgroups_test.target, clf = KNN, cv = 10)
-    plotArray(cvResults["mean_test_score"], "KNN NEWSGROPUS20")
+    plotArray(cvResults["mean_test_score"], "KNN NEWSGROUPS20")
 
 
     # NN va bien para las noticias ? No mucho ~ 0.30
     bestParams, cvResults, mtsTest, maxScore = NNCerca(x_train, newsgroups_train.target)
     neuralNetwork = MLPClassifier(hidden_layer_sizes=bestParams["hidden_layer_sizes"], activation=bestParams["activation"] ,solver='sgd', learning_rate='constant', learning_rate_init=0.02)
     scoreOut, scoreMax = compute_test(x_test=x_test, y_test=newsgroups_test.target, clf=neuralNetwork, cv=10)
-    plotArray(cvResults["mean_test_score"], "NN NEWSGROPUS20")
+    plotArray(cvResults["mean_test_score"], "NN NEWSGROUPS20")
 
 
     # Adaboost va? bien para las noticias ~ 0.20
     bestParams, cvResults, mtsTest, maxScore = adaBoostCerca(x_train, newsgroups_train.target)
     adaboost = AdaBoostClassifier(n_estimators=bestParams["n_estimators"])
     scoreOut, scoreMax = compute_test(x_test= x_test, y_test= newsgroups_test.target, clf = adaboost, cv = 10)
-    plotArray(cvResults["mean_test_score"], "Adaboost NEWSGROPUS20")
+    plotArray(cvResults["mean_test_score"], "Adaboost NEWSGROUPS20")
 
     bestParams, cvResults , mtsTest, maxScore= adaBoostWithDecisionTree(x_train, newsgroups_train.target)
-    scoreOut, scoreMax = compute_test(x_test= vectors_test, y_test= newsgroups_test.target)
     tree = DecisionTreeClassifier(max_depth=bestParams['base_estimator__max_depth'])
     adaboostTree = AdaBoostClassifier(base_estimator=tree, n_estimators=bestParams['n_estimators'])
     scoreOut, scoreMax = compute_test(x_test= x_test, y_test= newsgroups_test.target, clf = adaboostTree, cv = 10)
