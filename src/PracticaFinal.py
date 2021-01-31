@@ -22,8 +22,6 @@ def compute_test(x_test, y_test, clf, cv):
     splitter = sklearn.model_selection.KFold(n_splits=cv)
     indices = splitter.split(x_test, y_test)
     score = []
-    #loopX = x_test.toarray()
-    #loopX = calculaPCA(loopX, 30)
     for index_train, index_test in indices:
         XtestFraction = x_test[index_test]
         YtestFraction = y_test[index_test]
@@ -49,7 +47,6 @@ def testIGrafica(clf, cv, X, Y):
     n_dimensions_max = 64
     n_neighbours = range(1, n_neighbours_max)
     n_dimensions = range(1, n_dimensions_max)
-    # clf = GridSearchCV(estimator=KNeighborsClassifier(), n_jobs=-1, param_grid={'n_neighbors': n_neighbours}, cv=cv)
 
     score = []
     for dimensions in n_dimensions:
@@ -68,21 +65,17 @@ def testIGrafica(clf, cv, X, Y):
 
 
 def KNNCerca(X, Y, range):
-    #X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3)
-    # Generate possible values of the exploration Grid
+    # Generem els parametres
     k = np.arange(range) + 1
-
-    # Infer all the exploratory surface into parameters struct
     parameters = {'n_neighbors': k}
 
     # Create Learner Factory
     knearest = sklearn.neighbors.KNeighborsClassifier()
-    # Instantiate a GridSearch with the a) Learner Factory b) Exploratory parameters c) CrossValidation param
-
     clf = GridSearchCV(knearest, parameters, cv=10, n_jobs=-1)
+
     # Perform exploratory grid search over TrainingData
-    #clf.fit(X, Y)
-    # testIGrafica(10, X, Y)
+    clf.fit(X, Y)
+
     mtsTEST, maxMTSTest = compute_test(X,Y,clf,10)
     return clf.best_params_, clf.cv_results_, mtsTEST, maxMTSTest
 
@@ -91,13 +84,12 @@ def NNCerca(X, Y):
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3)
 
     # Parameter creation
-    # sizes=(np.arange(100)+1,np.arange(100)+1,)
     Nact = ["relu", "tanh", "logistic"]
-    # parameters = {'hidden_layer_sizes' : sizes,'activation' : Nact, 'n_iter' : iteracions}
+
+    # parameters
     parameters = {'hidden_layer_sizes': [(100,), (100, 100,), (100, 100, 100,)],
                   'activation': Nact}
-    # 'n_iter_no_change': iteracions,
-    # 'learning_rate': ['constant','adaptive']
+
 
     # NN creation
     nn = MLPClassifier(solver='sgd', learning_rate='constant', learning_rate_init=0.02)
@@ -106,30 +98,26 @@ def NNCerca(X, Y):
     clf = GridSearchCV(nn, parameters, cv=10, n_jobs=-1)
 
     # Fem grid search
-    #clf.fit(X_train, Y_train)
+    clf.fit(X_train, Y_train)
 
-    # Compute Test Accuracy with the already defined function (it has to be adapted)
+    # Funció de test
     mtsTEST, maxMTSTest = compute_test(x_test=X,y_test = Y, clf = clf, cv =10)
-    #mtsTEST = compute_test(X, Y, clf, 10)
+
     return clf.best_params_, clf.cv_results_, mtsTEST, maxMTSTest
 
 def adaBoostWithDecisionTree(X, Y):
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3)
 
+    #Creem els parametres i les funcions clasificadores
     parameters = {'n_estimators': np.arange(64) + 1, 'base_estimator__max_depth': [10]}
     tree = DecisionTreeClassifier()
     adaboost = AdaBoostClassifier(base_estimator=tree)
 
     # Creem el gridSearch
     clf = GridSearchCV(adaboost, parameters, cv=10, n_jobs=-1)
-    # Fit the data
-    #clf.fit(X, Y)
-    # Compute Test Accuracy with the already defined function (it has to be adapted)
-    # score = compute_test(x_test=X_test,y_test = Y_test, clf = clf, cv =10)
-    #bestParams = clf.best_params_
-    #mtsGRID = clf.cv_results_["mean_test_score"]
+
+    # Funció de test
     mtsTEST, maxMTSTest = compute_test(X_test, Y_test, clf, 10)
-    #return bestParams, mtsGRID, mtsTEST, maxMTSTest
     return clf.best_params_, clf.cv_results_, mtsTEST, maxMTSTest
 
 def adaBoostCerca(X, Y):
@@ -141,9 +129,8 @@ def adaBoostCerca(X, Y):
     clf = GridSearchCV(adaboost, parameters, cv=10, n_jobs=-1)
     # Fit the data
     clf.fit(X, Y)
-    # Compute Test Accuracy with the already defined function (it has to be adapted)
-    # score = compute_test(x_test=X_test,y_test = Y_test, clf = clf, cv =10)
-    # mtsGRID = clf.cv_results_["mean_test_score"]
+
+    # Funció de test
     mtsTEST, maxMTSTest = compute_test(X, Y, clf, 10)
     return clf.best_params_, clf.cv_results_ ,mtsTEST, maxMTSTest
 
@@ -170,10 +157,9 @@ def plotTrainTest(train, test):
 
 def newsGroup():
     # Importamos el dataset
-    #newsgroups_train = fetch_20newsgroups(subset='train', remove=('headers', 'footers', 'quotes'))
-    #newsgroups_test = fetch_20newsgroups(subset='test', remove=('headers', 'footers', 'quotes'))
     newsgroups_train = fetch_20newsgroups(subset='train')
     newsgroups_test = fetch_20newsgroups(subset='test')
+    
     # Vectorizamos
     vectorizer = TfidfVectorizer()
     vectors = vectorizer.fit_transform(newsgroups_train.data)  # Será la X
@@ -183,7 +169,7 @@ def newsGroup():
     x_test = vectors_test.toarray()
     x_test = calculaPCA(x_test, 30)
 
-    # KNN no va bien para las noticias ~ 0.25
+    #K-Nearest
     bestParams, cvResults , mtsTest, maxScore = KNNCerca(x_train, newsgroups_train.target, 30)
     KNN = KNeighborsClassifier(bestParams["n_neighbors"], n_jobs=-1)
     KNN.fit(x_train, newsgroups_train.target)
@@ -191,19 +177,20 @@ def newsGroup():
     plotArray(cvResults["mean_test_score"], "KNN NEWSGROUPS20")
 
 
-    # NN va bien para las noticias ? No mucho ~ 0.30
+    #Neural Networks
     bestParams, cvResults, mtsTest, maxScore = NNCerca(x_train, newsgroups_train.target)
     neuralNetwork = MLPClassifier(hidden_layer_sizes=bestParams["hidden_layer_sizes"], activation=bestParams["activation"] ,solver='sgd', learning_rate='constant', learning_rate_init=0.02)
     scoreOut, scoreMax = compute_test(x_test=x_test, y_test=newsgroups_test.target, clf=neuralNetwork, cv=10)
     plotArray(cvResults["mean_test_score"], "NN NEWSGROUPS20")
 
 
-    # Adaboost va? bien para las noticias ~ 0.20
+    #Adaboost
     bestParams, cvResults, mtsTest, maxScore = adaBoostCerca(x_train, newsgroups_train.target)
     adaboost = AdaBoostClassifier(n_estimators=bestParams["n_estimators"])
     scoreOut, scoreMax = compute_test(x_test= x_test, y_test= newsgroups_test.target, clf = adaboost, cv = 10)
     plotArray(cvResults["mean_test_score"], "Adaboost NEWSGROUPS20")
 
+    #Adaboost con arbol de decisión
     bestParams, cvResults , mtsTest, maxScore= adaBoostWithDecisionTree(x_train, newsgroups_train.target)
     tree = DecisionTreeClassifier(max_depth=bestParams['base_estimator__max_depth'])
     adaboostTree = AdaBoostClassifier(base_estimator=tree, n_estimators=bestParams['n_estimators'])
@@ -238,5 +225,5 @@ if __name__ == "__main__":
     print("Params: " + str(bestParams) + " Score de cv max: " + str(cvResults["mean_test_score"]))
     print("Test Score: " + str(mtsTest) + " maxScore: " + str(maxScore))
 
-    newsGroup()
+    #newsGroup()
 
