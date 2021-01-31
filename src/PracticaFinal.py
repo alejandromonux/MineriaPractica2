@@ -225,5 +225,5 @@ if __name__ == "__main__":
     print("Params: " + str(bestParams) + " Score de cv max: " + str(cvResults["mean_test_score"]))
     print("Test Score: " + str(mtsTest) + " maxScore: " + str(maxScore))
 
-    #newsGroup()
+    newsGroup()
 
