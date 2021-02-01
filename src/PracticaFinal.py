@@ -203,23 +203,25 @@ if __name__ == "__main__":
     X = digits.data
     Y = digits.target
 
+    #K-Nearest
     bestParams, cvResults , mtsTest, maxScore = KNNCerca(X, Y, 30)
     plotArray(cvResults["mean_test_score"], "KNN")
     print("Params: " + str(bestParams) + " Score de cv max: " + str(cvResults["mean_test_score"]))
     print("Test Score: " + str(mtsTest) + " maxScore: " + str(maxScore))
 
-
+    #Neural Networks
     bestParams, cvResults , mtsTest, maxScore = NNCerca(X,Y)
     plotArray(cvResults["mean_test_score"], "Neural Network")
     print("Params: " + str(bestParams) + " Score de cv max: " + str(cvResults["mean_test_score"]))
     print("Test Score: " + str(mtsTest) + " maxScore: " + str(maxScore))
 
+    #Adaboost
     bestParams, cvResults , mtsTest, maxScore = adaBoostCerca(X,Y)
     plotArray(cvResults["mean_test_score"], "AdaBoost")
     print("Params: " + str(bestParams) + " Score de cv max: " + str(cvResults["mean_test_score"]))
     print("Test Score: " + str(mtsTest) + " maxScore: " + str(maxScore))
 
-
+    # Adaboost con arbol de decisión
     bestParams, cvResults , mtsTest, maxScore= adaBoostWithDecisionTree(X,Y)
     plotArray(cvResults["mean_test_score"], "adaboost with decision tree")
     print("Params: " + str(bestParams) + " Score de cv max: " + str(cvResults["mean_test_score"]))
