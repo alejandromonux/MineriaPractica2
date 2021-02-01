@@ -69,13 +69,12 @@ def KNNCerca(X, Y, range):
     k = np.arange(range) + 1
     parameters = {'n_neighbors': k}
 
-    # Create Learner Factory
+    # Generem el learner i el gridsearch
     knearest = sklearn.neighbors.KNeighborsClassifier()
     clf = GridSearchCV(knearest, parameters, cv=10, n_jobs=-1)
-
-    # Perform exploratory grid search over TrainingData
     clf.fit(X, Y)
 
+    #Test
     mtsTEST, maxMTSTest = compute_test(X,Y,clf,10)
     return clf.best_params_, clf.cv_results_, mtsTEST, maxMTSTest
 
@@ -83,18 +82,14 @@ def KNNCerca(X, Y, range):
 def NNCerca(X, Y):
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3)
 
-    # Parameter creation
+    # Generem paràmetres
     Nact = ["relu", "tanh", "logistic"]
-
-    # parameters
     parameters = {'hidden_layer_sizes': [(100,), (100, 100,), (100, 100, 100,)],
                   'activation': Nact}
 
 
-    # NN creation
+    # Creem NN i gridsearch
     nn = MLPClassifier(solver='sgd', learning_rate='constant', learning_rate_init=0.02)
-
-    # Creem el gridSearch
     clf = GridSearchCV(nn, parameters, cv=10, n_jobs=-1)
 
     # Fem grid search
@@ -123,11 +118,11 @@ def adaBoostWithDecisionTree(X, Y):
 def adaBoostCerca(X, Y):
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3)
 
+    #Generem paràmetres
     parameters = {'n_estimators': np.arange(64) + 1}
     adaboost = AdaBoostClassifier()
     # Creem el gridSearch
     clf = GridSearchCV(adaboost, parameters, cv=10, n_jobs=-1)
-    # Fit the data
     clf.fit(X, Y)
 
     # Funció de test
